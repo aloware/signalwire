@@ -318,6 +318,42 @@ class Call {
     return $this->waitFor(CallState::Ended);
   }
 
+  public function faxReceive() {
+    $component = new Components\FaxReceive($this);
+    $this->_addComponent($component);
+
+    return $component->_waitFor(FaxState::Error, FaxState::Finished)->then(function() use (&$component) {
+      return new Results\FaxResult($component);
+    });
+  }
+
+  public function faxReceiveAsync() {
+    $component = new Components\FaxReceive($this);
+    $this->_addComponent($component);
+
+    return $component->execute()->then(function() use (&$component) {
+      return new Actions\FaxAction($component);
+    });
+  }
+
+  public function faxSend(string $url, string $identity = null, string $header = null) {
+    $component = new Components\FaxSend($this, $url, $identity, $header);
+    $this->_addComponent($component);
+
+    return $component->_waitFor(FaxState::Error, FaxState::Finished)->then(function() use (&$component) {
+      return new Results\FaxResult($component);
+    });
+  }
+
+  public function faxSendAsync(string $url, string $identity = null, string $header = null) {
+    $component = new Components\FaxSend($this, $url, $identity, $header);
+    $this->_addComponent($component);
+
+    return $component->execute()->then(function() use (&$component) {
+      return new Actions\FaxAction($component);
+    });
+  }
+
   /**
    * Start a detector. Wait until the detector has finished/failed/timed out
    *
@@ -434,6 +470,26 @@ class Call {
   public function detectMachineAsync(array $params = []) {
     trigger_error('Method ' . __METHOD__ . ' is deprecated. Use detectAnsweringMachineAsync instead.', E_USER_DEPRECATED);
     $params['type'] = DetectType::Machine;
+    return $this->detectAsync($params);
+  }
+
+  /**
+   * Detect a fax. Wait for the first Fax tone (or $tone passed in) or when the detector has finished/failed/timed out
+   *
+   * @param Array Detector params
+   */
+  public function detectFax(array $params = []) {
+    $params['type'] = DetectType::Fax;
+    return $this->detect($params);
+  }
+
+  /**
+   * Detect a fax in async mode. DetectAction will be completed with the first Fax tone (or $tone passed in) or when the detector has finished/failed/timed out
+   *
+   * @param Array Detector params
+   */
+  public function detectFaxAsync(array $params = []) {
+    $params['type'] = DetectType::Fax;
     return $this->detectAsync($params);
   }
 
@@ -578,6 +634,14 @@ class Call {
     $this->_notifyComponents(Notification::Collect, $params->control_id, $params);
     $this->_dispatchCallback('collect', $params); // backwards compat.
     $this->_dispatchCallback('prompt', $params);
+  }
+
+  public function _faxChange($params) {
+    $this->_notifyComponents(Notification::Fax, $params->control_id, $params);
+    $this->_dispatchCallback('fax.stateChange', $params);
+    if (isset($params->fax->type)) {
+      $this->_dispatchCallback("fax.{$params->fax->type}", $params);
+    }
   }
 
   public function _detectChange($params) {

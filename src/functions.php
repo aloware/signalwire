@@ -210,6 +210,23 @@ function prepareDetectParams(Array $params) {
   return [$detect, $timeout, $waitForBeep];
 }
 
+function prepareDetectFaxParamsAndEvents(array $params) {
+  $params['type'] = DetectType::Fax;
+  list($detect, $timeout) = prepareDetectParams($params);
+  $faxEvents = [DetectState::CED, DetectState::CNG];
+  $events = [];
+  $tone = isset($detect['params']['tone']) ? $detect['params']['tone'] : null;
+  if ($tone && in_array($tone, $faxEvents)) {
+    $detect['params'] = ['tone' => $tone];
+    array_push($events, $tone);
+  } else {
+    $detect['params'] = [];
+    $events = $faxEvents; // Both CED & CNG
+  }
+
+  return [$detect, $timeout, $events];
+}
+
 function prepareTapParams(array $params, array $deviceParams = []) {
   $tapParams = [];
   if (isset($params['audio_direction'])) {

@@ -3,10 +3,6 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.3.11] - 2022-06-28
-### Updated
-- Remove Fax since Twilio don't suppor Fax
-
 ## [2.3.10] - 2022-01-10
 ### Fixed
 - Fixed `SignalWire\LaML\MessageResponse` namespace and introduced `SignalWire\LaML\MessagingResponse` for better compatibility.
