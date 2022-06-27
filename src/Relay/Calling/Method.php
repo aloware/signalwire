@@ -11,8 +11,6 @@ final class Method {
   const Record = 'calling.record';
   const Play = 'calling.play';
   const PlayAndCollect = 'calling.play_and_collect';
-  const ReceiveFax = 'calling.receive_fax';
-  const SendFax = 'calling.send_fax';
   const Detect = 'calling.detect';
   const Tap = 'calling.tap';
   const SendDigits = 'calling.send_digits';
