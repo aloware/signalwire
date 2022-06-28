@@ -24,18 +24,4 @@ class IntegrationTest extends TestCase
     \VCR\VCR::eject();
     \VCR\VCR::turnOff();
   }
-
-  public function testFaxList(): void {
-    \VCR\VCR::insertCassette('list_faxes');
-
-    $faxes = $this->client->fax->v1->faxes->read();
-    $this->assertEquals(count($faxes), 7);
-  }
-
-  public function testGetFax(): void {
-    \VCR\VCR::insertCassette('get_fax');
-
-    $fax = $this->client->fax->v1->faxes("831455c6-574e-4d8b-b6ee-2418140bf4cd")->fetch();
-    $this->assertEquals($fax->to, '+15556677888');
-  }
 }

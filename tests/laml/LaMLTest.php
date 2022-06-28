@@ -11,15 +11,6 @@ class LaMLTest extends TestCase
     $this->assertEquals($response->__toString(), "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Response><Say>Hey!</Say><Play loop=\"5\">https://ccrma.stanford.edu/~jos/mp3/gtr-nylon22.mp3</Play></Response>\n");
   }
 
-  public function testFaxResponseLaMLMatch(): void {
-    $response = new SignalWire\LaML\FaxResponse();
-    $response->receive([
-      'attr' => 'value',
-      'key' => 'foo'
-    ]);
-    $this->assertEquals($response->__toString(), "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Response><Receive attr=\"value\" key=\"foo\"/></Response>\n");
-  }
-
   public function testVoiceResponseLaMLMatch(): void {
     $response = new SignalWire\LaML\VoiceResponse();
     $response->connect([

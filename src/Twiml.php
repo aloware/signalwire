@@ -24,7 +24,7 @@ class Twiml {
      *   - if null, initialize an empty element named 'Response'
      */
     public function __construct($arg = null) {
-      trigger_error("\SignalWire\LaML() is Deprecated and will be removed in version 3. Please use \SignalWire\LaML\VoiceResponse, \SignalWire\LaML\MessageResponse or \SignalWire\LaML\FaxResponse", E_USER_NOTICE);
+      trigger_error("\SignalWire\LaML() is Deprecated and will be removed in version 3. Please use \SignalWire\LaML\VoiceResponse or \SignalWire\LaML\MessageResponse", E_USER_NOTICE);
       switch (true) {
         case $arg instanceof \SimpleXMLElement:
           $this->element = $arg;
