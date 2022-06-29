@@ -1,5 +1,5 @@
 {
-  "name": "signalwire/signalwire",
+  "name": "aloware/signalwire",
   "description": "Client library for connecting to SignalWire.",
   "type": "library",
   "keywords": [
@@ -9,7 +9,6 @@
     "voice",
     "voicemail",
     "video",
-    "fax",
     "api",
     "ivr",
     "iot",
