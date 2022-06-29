@@ -37,7 +37,6 @@ class BroadcastHandler {
       case CallNotification::Record:
       case CallNotification::Play:
       case CallNotification::Collect:
-      case CallNotification::Fax:
       case CallNotification::Detect:
       case CallNotification::Tap:
       case CallNotification::SendDigits:

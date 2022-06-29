@@ -9,7 +9,6 @@ final class Notification {
   const Play = 'calling.call.play';
   const Collect = 'calling.call.collect';
   const Receive = 'calling.call.receive';
-  const Fax = 'calling.call.fax';
   const Detect = 'calling.call.detect';
   const Tap = 'calling.call.tap';
   const SendDigits = 'calling.call.send_digits';

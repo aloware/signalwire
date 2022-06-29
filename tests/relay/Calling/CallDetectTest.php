@@ -5,9 +5,6 @@ use SignalWire\Messages\Execute;
 
 class RelayCallingCallDetectTest extends RelayCallingBaseActionCase
 {
-  protected static $notificationFaxCED;
-  protected static $notificationFaxError;
-  protected static $notificationFaxFinished;
   protected static $notificationMachineMachine;
   protected static $notificationMachineUnknown;
   protected static $notificationMachineHuman;
@@ -20,10 +17,6 @@ class RelayCallingCallDetectTest extends RelayCallingBaseActionCase
   protected static $notificationDigitFinished;
 
   public static function setUpBeforeClass() {
-    self::$notificationFaxCED = json_decode('{"event_type":"calling.call.detect","params":{"control_id":"'.self::UUID.'","call_id":"call-id","node_id":"node-id","detect":{"type":"fax","params":{"event":"CED"}}}}');
-    self::$notificationFaxError = json_decode('{"event_type":"calling.call.detect","params":{"control_id":"'.self::UUID.'","call_id":"call-id","node_id":"node-id","detect":{"type":"fax","params":{"event":"error"}}}}');
-    self::$notificationFaxFinished = json_decode('{"event_type":"calling.call.detect","params":{"control_id":"'.self::UUID.'","call_id":"call-id","node_id":"node-id","detect":{"type":"fax","params":{"event":"finished"}}}}');
-
     self::$notificationMachineMachine = json_decode('{"event_type":"calling.call.detect","params":{"control_id":"'.self::UUID.'","call_id":"call-id","node_id":"node-id","detect":{"type":"machine","params":{"event":"MACHINE"}}}}');
     self::$notificationMachineUnknown = json_decode('{"event_type":"calling.call.detect","params":{"control_id":"'.self::UUID.'","call_id":"call-id","node_id":"node-id","detect":{"type":"machine","params":{"event":"UNKNOWN"}}}}');
     self::$notificationMachineHuman = json_decode('{"event_type":"calling.call.detect","params":{"control_id":"'.self::UUID.'","call_id":"call-id","node_id":"node-id","detect":{"type":"machine","params":{"event":"HUMAN"}}}}');
@@ -41,21 +34,6 @@ class RelayCallingCallDetectTest extends RelayCallingBaseActionCase
     parent::setUp();
 
     $this->_setCallReady();
-  }
-
-  public function testDetectSuccessWithTypeFax(): void {
-    $msg = $this->_detectMsg('fax');
-    $this->_mockSuccessResponse($msg);
-    $params = [ 'type' => 'fax', 'timeout' => 25];
-    $this->call->detect($params)->done(function($result) {
-      $this->assertInstanceOf('SignalWire\Relay\Calling\Results\DetectResult', $result);
-      $this->assertTrue($result->isSuccessful());
-      $this->assertEquals($result->getType(), 'fax');
-      $this->assertEquals($result->getResult(), 'CED');
-      $this->assertObjectHasAttribute('type', $result->getEvent()->payload);
-      $this->assertObjectHasAttribute('params', $result->getEvent()->payload);
-    });
-    $this->calling->notificationHandler(self::$notificationFaxCED);
   }
 
   public function testDetectSuccessWithTypeMachine(): void {
@@ -86,66 +64,6 @@ class RelayCallingCallDetectTest extends RelayCallingBaseActionCase
       $this->assertObjectHasAttribute('params', $result->getEvent()->payload);
     });
     $this->calling->notificationHandler(self::$notificationDigitDTMF);
-  }
-
-  public function testDetectFailOnTimeout(): void {
-    $msg = $this->_detectMsg('fax');
-    $this->_mockSuccessResponse($msg);
-    $params = ['type' => 'fax', 'timeout' => 25];
-    $this->call->detect($params)->done(function($result) {
-      $this->assertInstanceOf('SignalWire\Relay\Calling\Results\DetectResult', $result);
-      $this->assertFalse($result->isSuccessful());
-      $this->assertEquals($result->getType(), 'fax');
-      $this->assertEquals($result->getResult(), '');
-      $this->assertObjectHasAttribute('type', $result->getEvent()->payload);
-      $this->assertObjectHasAttribute('params', $result->getEvent()->payload);
-    });
-    $this->calling->notificationHandler(self::$notificationFaxFinished);
-  }
-
-  public function testDetectFailOnError(): void {
-    $msg = $this->_detectMsg('fax');
-    $this->_mockSuccessResponse($msg);
-    $params = [ 'type' => 'fax', 'timeout' => 25];
-    $this->call->detect($params)->done(function($result) {
-      $this->assertInstanceOf('SignalWire\Relay\Calling\Results\DetectResult', $result);
-      $this->assertFalse($result->isSuccessful());
-      $this->assertEquals($result->getType(), 'fax');
-      $this->assertEquals($result->getResult(), '');
-      $this->assertObjectHasAttribute('type', $result->getEvent()->payload);
-      $this->assertObjectHasAttribute('params', $result->getEvent()->payload);
-    });
-    $this->calling->notificationHandler(self::$notificationFaxError);
-  }
-
-  public function testDetectFail(): void {
-    $msg = $this->_detectMsg('fax');
-    $this->_mockFailResponse($msg);
-    $params = [ 'type' => 'fax', 'timeout' => 25];
-    $this->call->detect($params)->done([$this, '__detectFailCheck']);
-  }
-
-  public function testDetectAsyncSuccess(): void {
-    $msg = $this->_detectMsg('fax', ['tone' => 'CED'], 45);
-    $this->_mockSuccessResponse($msg);
-    $params = [ 'type' => 'fax', 'timeout' => 45, 'tone' => 'CED' ];
-    $this->call->detectAsync($params)->done(function($action) {
-      $this->assertInstanceOf('SignalWire\Relay\Calling\Actions\DetectAction', $action);
-      $this->assertInstanceOf('SignalWire\Relay\Calling\Results\DetectResult', $action->getResult());
-      $this->assertFalse($action->isCompleted());
-      $this->calling->notificationHandler(self::$notificationFaxCED);
-      $this->assertFalse($action->isCompleted());
-      $this->calling->notificationHandler(self::$notificationFaxFinished);
-      $this->assertTrue($action->isCompleted());
-      $this->assertEquals($action->getResult()->getResult(), 'CED');
-    });
-  }
-
-  public function testDetectAsyncFail(): void {
-    $msg = $this->_detectMsg('fax',['tone' => 'CED'], 45);
-    $this->_mockFailResponse($msg);
-    $params = [ 'type' => 'fax', 'timeout' => 45, 'tone' => 'CED' ];
-    $this->call->detectAsync($params)->done([$this, '__detectAsyncFailCheck']);
   }
 
   public function testDetectHumanSuccess(): void {
@@ -319,48 +237,6 @@ class RelayCallingCallDetectTest extends RelayCallingBaseActionCase
     $this->call->detectDigitAsync(['digits' => '123', 'timeout' => 45])->done([$this, '__detectAsyncFailCheck']);
   }
 
-  public function testDetectFaxSuccess(): void {
-    $msg = $this->_detectMsg('fax');
-    $this->_mockSuccessResponse($msg);
-
-    $this->call->detectFax(['timeout' => 25])->done(function($result) {
-      $this->assertInstanceOf('SignalWire\Relay\Calling\Results\DetectResult', $result);
-      $this->assertTrue($result->isSuccessful());
-      $this->assertEquals($result->getType(), 'fax');
-      $this->assertEquals($result->getResult(), 'CED');
-      $this->assertObjectHasAttribute('type', $result->getEvent()->payload);
-      $this->assertObjectHasAttribute('params', $result->getEvent()->payload);
-    });
-    $this->calling->notificationHandler(self::$notificationFaxCED);
-  }
-
-  public function testDetectFaxFail(): void {
-    $msg = $this->_detectMsg('fax');
-    $this->_mockFailResponse($msg);
-    $this->call->detectFax(['timeout' => 25])->done([$this, '__detectFailCheck']);
-  }
-
-  public function testDetectFaxAsyncSuccess(): void {
-    $msg = $this->_detectMsg('fax', ['tone' => 'CED'], 45);
-    $this->_mockSuccessResponse($msg);
-
-    $this->call->detectFaxAsync(['tone' => 'CED', 'timeout' => 45])->done(function($action) {
-      $this->assertInstanceOf('SignalWire\Relay\Calling\Actions\DetectAction', $action);
-      $this->assertInstanceOf('SignalWire\Relay\Calling\Results\DetectResult', $action->getResult());
-      $this->calling->notificationHandler(self::$notificationFaxCED);
-      $this->assertFalse($action->isCompleted());
-      $this->calling->notificationHandler(self::$notificationFaxFinished);
-      $this->assertTrue($action->isCompleted());
-      $this->assertEquals($action->getResult()->getResult(), 'CED');
-    });
-  }
-
-  public function testDetectFaxAsyncFail(): void {
-    $msg = $this->_detectMsg('fax', ['tone' => 'CED'], 45);
-    $this->_mockFailResponse($msg);
-    $this->call->detectFaxAsync(['tone' => 'CED', 'timeout' => 45])->done([$this, '__detectAsyncFailCheck']);
-  }
-
   public function testDetectAnsweringMachine(): void {
     $msg = $this->_detectMsg('machine');
     $this->_mockSuccessResponse($msg);
@@ -438,9 +314,8 @@ class RelayCallingCallDetectTest extends RelayCallingBaseActionCase
       $this->calling->notificationHandler(self::$notificationMachineMachine);
       $this->calling->notificationHandler(self::$notificationMachineNotReady);
       $this->calling->notificationHandler(self::$notificationMachineReady);
-      $this->calling->notificationHandler(self::$notificationMachineNotReady);
       $this->assertFalse($action->isCompleted());
-      $this->calling->notificationHandler(self::$notificationFaxFinished);
+      $this->calling->notificationHandler(self::$notificationMachineNotReady);
       $this->assertTrue($action->isCompleted());
       $this->assertEquals($action->getResult()->getResult(), 'MACHINE,NOT_READY,READY,NOT_READY');
     });
