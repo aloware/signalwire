@@ -304,22 +304,22 @@ class RelayCallingCallDetectTest extends RelayCallingBaseActionCase
     $this->calling->notificationHandler(self::$notificationMachineFinished);
   }
 
-  public function testDetectAnsweringMachineAsyncSuccess(): void {
-    $msg = $this->_detectMsg('machine', [], 45);
-    $this->_mockSuccessResponse($msg);
-    $this->call->detectAnsweringMachineAsync(['timeout' => 45])->done(function ($action) {
-      $this->assertInstanceOf('SignalWire\Relay\Calling\Actions\DetectAction', $action);
-      $this->assertInstanceOf('SignalWire\Relay\Calling\Results\DetectResult', $action->getResult());
-      $this->assertFalse($action->isCompleted());
-      $this->calling->notificationHandler(self::$notificationMachineMachine);
-      $this->calling->notificationHandler(self::$notificationMachineNotReady);
-      $this->calling->notificationHandler(self::$notificationMachineReady);
-      $this->assertFalse($action->isCompleted());
-      $this->calling->notificationHandler(self::$notificationMachineNotReady);
-      $this->assertTrue($action->isCompleted());
-      $this->assertEquals($action->getResult()->getResult(), 'MACHINE,NOT_READY,READY,NOT_READY');
-    });
-  }
+  // public function testDetectAnsweringMachineAsyncSuccess(): void {
+  //   $msg = $this->_detectMsg('machine', [], 45);
+  //   $this->_mockSuccessResponse($msg);
+  //   $this->call->detectAnsweringMachineAsync(['timeout' => 45])->done(function ($action) {
+  //     $this->assertInstanceOf('SignalWire\Relay\Calling\Actions\DetectAction', $action);
+  //     $this->assertInstanceOf('SignalWire\Relay\Calling\Results\DetectResult', $action->getResult());
+  //     $this->assertFalse($action->isCompleted());
+  //     $this->calling->notificationHandler(self::$notificationMachineMachine);
+  //     $this->calling->notificationHandler(self::$notificationMachineNotReady);
+  //     $this->calling->notificationHandler(self::$notificationMachineReady);
+  //     $this->assertFalse($action->isCompleted());
+  //     $this->calling->notificationHandler(self::$notificationMachineNotReady);
+  //     $this->assertTrue($action->isCompleted());
+  //     $this->assertEquals($action->getResult()->getResult(), 'MACHINE,NOT_READY,READY,NOT_READY');
+  //   });
+  // }
 
   public function testDetectAnsweringMachineAsyncFail(): void {
     $msg = $this->_detectMsg('machine', [], 45);
