@@ -25,7 +25,7 @@ class Handler {
     self::register($evt, $wrapper, $uniqueId);
   }
 
-  static public function deRegister(String $evt, Callable $callable = null, String $uniqueId = self::GLOBAL){
+  static public function deRegister(String $evt, ?Callable $callable = null, String $uniqueId = self::GLOBAL){
     if (!self::isQueued($evt, $uniqueId)) {
       return false;
     }
